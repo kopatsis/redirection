@@ -7,6 +7,9 @@ import (
 	"redir/platform"
 
 	"github.com/joho/godotenv"
+	"github.com/oschwald/geoip2-golang"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 func main() {
@@ -17,7 +20,19 @@ func main() {
 		}
 	}
 
-	rtr := platform.New()
+	ipDB, err := geoip2.Open("data/GeoLite2-City.mmdb")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer ipDB.Close()
+
+	dsn := "user=postgres password=lab1 dbname=labsales sslmode=disable"
+	db, err := gorm.Open(postgres.Open(dsn))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	rtr := platform.New(db, ipDB)
 
 	port := os.Getenv("PORT")
 	if port == "" {
