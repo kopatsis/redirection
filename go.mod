@@ -2,23 +2,26 @@ module redir
 
 go 1.21.6
 
-require github.com/gin-gonic/gin v1.10.0
+require (
+	github.com/gin-gonic/gin v1.10.0
+	github.com/go-sql-driver/mysql v1.8.1
+	github.com/mssola/user_agent v0.6.0
+	github.com/oschwald/geoip2-golang v1.11.0
+	github.com/ua-parser/uap-go v0.0.0-20240611065828-3a4781585db6
+	gorm.io/driver/mysql v1.5.7
+	gorm.io/gorm v1.25.11
+)
 
 require (
+	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
-	github.com/jackc/pgpassfile v1.0.0 // indirect
-	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
-	github.com/jackc/pgx/v5 v5.5.5 // indirect
-	github.com/jackc/puddle/v2 v2.2.1 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
-	github.com/mssola/user_agent v0.6.0 // indirect
-	github.com/oschwald/geoip2-golang v1.11.0 // indirect
+	github.com/kr/pretty v0.3.0 // indirect
 	github.com/oschwald/maxminddb-golang v1.13.1 // indirect
-	github.com/ua-parser/uap-go v0.0.0-20240611065828-3a4781585db6 // indirect
-	golang.org/x/sync v0.8.0 // indirect
+	github.com/rogpeppe/go-internal v1.12.0 // indirect
+	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/yaml.v2 v2.2.1 // indirect
-	gorm.io/gorm v1.25.11 // indirect
 )
 
 require (
@@ -36,7 +39,6 @@ require (
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.7 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
-	github.com/lib/pq v1.10.9
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
@@ -50,5 +52,4 @@ require (
 	golang.org/x/text v0.17.0 // indirect
 	google.golang.org/protobuf v1.34.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	gorm.io/driver/postgres v1.5.9
 )

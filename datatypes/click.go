@@ -1,14 +1,13 @@
 package datatypes
 
 import (
-	"github.com/lib/pq"
-	"gorm.io/gorm"
+	"time"
 )
 
 type Click struct {
-	gorm.Model
-	ParamKey int
-	Time     pq.NullTime
+	ID       int `gorm:"primaryKey"`
+	ParamKey int `gorm:"index"`
+	Time     time.Time
 	City     string
 	Country  string
 	Browser  string
@@ -17,4 +16,12 @@ type Click struct {
 	Mobile   bool
 	Bot      bool
 	FromQR   bool
+}
+
+type Entry struct {
+	ID       int `gorm:"primaryKey"`
+	User     string
+	RealURL  string
+	Archived bool
+	Date     time.Time
 }

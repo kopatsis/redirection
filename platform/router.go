@@ -11,7 +11,9 @@ import (
 func New(db *gorm.DB, ipDB *geoip2.Reader) *gin.Engine {
 	router := gin.Default()
 
-	router.GET("/", routes.Redirect(db, ipDB))
+	router.GET("/", routes.MainRedirect)
+
+	router.GET("/:id", routes.Redirect(db, ipDB))
 
 	return router
 
