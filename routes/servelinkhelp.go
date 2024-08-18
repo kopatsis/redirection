@@ -35,7 +35,8 @@ func RequestClickCreate(c *gin.Context, ipDB *geoip2.Reader, id int) *datatypes.
 	var city string
 	var country string
 
-	ip := net.ParseIP(c.ClientIP())
+	ipStr := c.ClientIP()
+	ip := net.ParseIP(ipStr)
 	if ip != nil {
 		record, err := ipDB.City(ip)
 
@@ -60,16 +61,17 @@ func RequestClickCreate(c *gin.Context, ipDB *geoip2.Reader, id int) *datatypes.
 	isBot := uaM.Bot()
 
 	click := datatypes.Click{
-		ParamKey: id,
-		Time:     time.Now(),
-		City:     city,
-		Country:  country,
-		Browser:  browser,
-		OS:       os,
-		Platform: platform,
-		Mobile:   isMobile,
-		Bot:      isBot,
-		FromQR:   c.Query("q") == "t",
+		ParamKey:  id,
+		Time:      time.Now(),
+		City:      city,
+		Country:   country,
+		Browser:   browser,
+		OS:        os,
+		Platform:  platform,
+		Mobile:    isMobile,
+		Bot:       isBot,
+		FromQR:    c.Query("q") == "t",
+		IPAddress: ipStr,
 	}
 
 	return &click

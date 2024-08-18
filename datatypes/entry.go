@@ -2,7 +2,7 @@ package datatypes
 
 import "time"
 
-type Shorten struct {
+type Entry struct {
 	ID           int `gorm:"primaryKey"`
 	User         string
 	RealURL      string
