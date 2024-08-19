@@ -31,7 +31,7 @@ func GetRealURL(db *gorm.DB, id int) (string, error) {
 	return realURL, nil
 }
 
-func RequestClickCreate(c *gin.Context, ipDB *geoip2.Reader, id int) *datatypes.Click {
+func RequestClickCreate(c *gin.Context, ipDB *geoip2.Reader, id int, realURL string) *datatypes.Click {
 	var city string
 	var country string
 
@@ -63,6 +63,7 @@ func RequestClickCreate(c *gin.Context, ipDB *geoip2.Reader, id int) *datatypes.
 	click := datatypes.Click{
 		ParamKey:  id,
 		Time:      time.Now(),
+		RealURL:   realURL,
 		City:      city,
 		Country:   country,
 		Browser:   browser,

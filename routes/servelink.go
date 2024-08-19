@@ -25,7 +25,7 @@ func Redirect(db *gorm.DB, ipDB *geoip2.Reader) gin.HandlerFunc {
 		}
 
 		go func() {
-			click := RequestClickCreate(c, ipDB, id)
+			click := RequestClickCreate(c, ipDB, id, realURL)
 			db.Create(click)
 		}()
 
