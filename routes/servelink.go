@@ -1,27 +1,36 @@
 package routes
 
 import (
+	"context"
 	"net/http"
 	"redir/convert"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis/v8"
 	"github.com/oschwald/geoip2-golang"
 	"gorm.io/gorm"
 )
 
-func Redirect(db *gorm.DB, ipDB *geoip2.Reader) gin.HandlerFunc {
+func Redirect(db *gorm.DB, ipDB *geoip2.Reader, rdb *redis.Client) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		param := c.Param("id")
+		var realURL string
+
 		id, err := convert.FromSixFour(param)
 		if err != nil {
 			MainRedirect(c)
 			return
 		}
 
-		realURL, err := GetRealURL(db, id)
-		if err != nil {
-			MainRedirect(c)
-			return
+		cachedURL, err := rdb.Get(context.TODO(), param).Result()
+		if err == nil {
+			realURL = cachedURL
+		} else {
+			realURL, err = GetRealURL(db, id)
+			if err != nil {
+				MainRedirect(c)
+				return
+			}
 		}
 
 		go func() {
