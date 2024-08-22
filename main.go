@@ -45,7 +45,7 @@ func main() {
 		DB:       0,
 	})
 
-	rtr := platform.New(db, ipDB)
+	rtr := platform.New(db, ipDB, rdb)
 
 	port := os.Getenv("PORT")
 	if port == "" {

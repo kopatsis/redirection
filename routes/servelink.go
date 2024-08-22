@@ -22,7 +22,7 @@ func Redirect(db *gorm.DB, ipDB *geoip2.Reader, rdb *redis.Client) gin.HandlerFu
 			return
 		}
 
-		cachedURL, err := rdb.Get(context.TODO(), param).Result()
+		cachedURL, err := rdb.Get(context.Background(), param).Result()
 		if err == nil {
 			realURL = cachedURL
 		} else {
@@ -38,7 +38,7 @@ func Redirect(db *gorm.DB, ipDB *geoip2.Reader, rdb *redis.Client) gin.HandlerFu
 			db.Create(click)
 		}()
 
-		c.Redirect(http.StatusFound, realURL)
+		c.Redirect(http.StatusSeeOther, realURL)
 
 	}
 }
