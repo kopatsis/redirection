@@ -17,7 +17,7 @@ import (
 func MainRedirect(c *gin.Context) {
 	mainURL := os.Getenv("mainURL") + "?dne=t"
 	if mainURL == "" {
-		mainURL = "https://shqrl.co?dne=t"
+		mainURL = "https://shortentrack.com?dne=t"
 	}
 	c.Redirect(http.StatusFound, mainURL)
 }
