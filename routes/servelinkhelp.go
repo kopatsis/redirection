@@ -31,6 +31,15 @@ func GetRealURL(db *gorm.DB, id int) (string, error) {
 	return realURL, nil
 }
 
+func GetRealURLByCustom(db *gorm.DB, custom string) (string, error) {
+	var realURL string
+	result := db.Table("entries").Select("real_url").Where("custom_handle = ? AND archived = ?", custom, false).Scan(&realURL)
+	if result.Error != nil {
+		return "", result.Error
+	}
+	return realURL, nil
+}
+
 func RequestClickCreate(c *gin.Context, ipDB *geoip2.Reader, id int, realURL string) *datatypes.Click {
 	var city string
 	var country string

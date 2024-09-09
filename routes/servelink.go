@@ -16,17 +16,28 @@ func Redirect(db *gorm.DB, ipDB *geoip2.Reader, rdb *redis.Client) gin.HandlerFu
 		param := c.Param("id")
 		var realURL string
 
-		id, err := convert.FromSixFour(param)
-		if err != nil {
-			MainRedirect(c)
-			return
+		var id int
+		custom := len(param) > 6
+
+		if !custom {
+			var err error
+			id, err = convert.FromSixFour(param)
+			if err != nil {
+				MainRedirect(c)
+				return
+			}
 		}
 
 		cachedURL, err := rdb.Get(context.Background(), param).Result()
 		if err == nil {
 			realURL = cachedURL
 		} else {
-			realURL, err = GetRealURL(db, id)
+			if custom {
+				realURL, err = GetRealURLByCustom(db, param)
+			} else {
+				realURL, err = GetRealURL(db, id)
+			}
+
 			if err != nil {
 				MainRedirect(c)
 				return
