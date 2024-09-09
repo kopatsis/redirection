@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"redir/convert"
+	"redir/datatypes"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
@@ -47,6 +48,7 @@ func Redirect(db *gorm.DB, ipDB *geoip2.Reader, rdb *redis.Client) gin.HandlerFu
 		go func() {
 			click := RequestClickCreate(c, ipDB, id, realURL)
 			db.Create(click)
+			db.Model(&datatypes.Entry{}).Where("id = ?", id).UpdateColumn("count", gorm.Expr("count + 1"))
 		}()
 
 		c.Redirect(http.StatusSeeOther, realURL)

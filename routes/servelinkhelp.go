@@ -1,6 +1,8 @@
 package routes
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"net"
 	"net/http"
 	"os"
@@ -81,7 +83,7 @@ func RequestClickCreate(c *gin.Context, ipDB *geoip2.Reader, id int, realURL str
 		Mobile:    isMobile,
 		Bot:       isBot,
 		FromQR:    c.Query("q") == "t",
-		IPAddress: ipStr,
+		IPAddress: hex.EncodeToString(sha256.New().Sum([]byte(ipStr))),
 	}
 
 	return &click
