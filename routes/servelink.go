@@ -24,13 +24,16 @@ func Redirect(db *gorm.DB, ipDB *geoip2.Reader, rdb *redis.Client) gin.HandlerFu
 			var err error
 			id, err = convert.FromSixFour(param)
 			if err != nil {
-				MainRedirect(c)
+				MainRedirect(c, true)
 				return
 			}
 		}
 
 		cachedURL, err := rdb.Get(context.Background(), param).Result()
-		if err == nil {
+		if len(cachedURL) >= 3 && cachedURL[:3] == ":e:" {
+			MainRedirect(c, true)
+			return
+		} else if err == nil {
 			realURL = cachedURL
 		} else {
 			if custom {
@@ -40,7 +43,7 @@ func Redirect(db *gorm.DB, ipDB *geoip2.Reader, rdb *redis.Client) gin.HandlerFu
 			}
 
 			if err != nil {
-				MainRedirect(c)
+				MainRedirect(c, true)
 				return
 			}
 		}

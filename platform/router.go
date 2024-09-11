@@ -14,7 +14,9 @@ func New(db *gorm.DB, ipDB *geoip2.Reader, rdb *redis.Client) *gin.Engine {
 
 	router.Use(CORSMiddleware())
 
-	router.GET("/", routes.MainRedirect)
+	router.GET("/", func(c *gin.Context) {
+		routes.MainRedirect(c, false)
+	})
 
 	router.GET("/:id", routes.Redirect(db, ipDB, rdb))
 

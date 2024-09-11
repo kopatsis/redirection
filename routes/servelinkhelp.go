@@ -16,10 +16,13 @@ import (
 	"gorm.io/gorm"
 )
 
-func MainRedirect(c *gin.Context) {
-	mainURL := os.Getenv("mainURL") + "?dne=t"
+func MainRedirect(c *gin.Context, isErr bool) {
+	mainURL := os.Getenv("mainURL")
 	if mainURL == "" {
-		mainURL = "https://shortentrack.com?dne=t"
+		mainURL = "https://shortentrack.com"
+	}
+	if isErr {
+		mainURL += "?dne=t"
 	}
 	c.Redirect(http.StatusFound, mainURL)
 }
