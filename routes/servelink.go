@@ -30,7 +30,7 @@ func Redirect(db *gorm.DB, ipDB *geoip2.Reader, rdb *redis.Client) gin.HandlerFu
 		}
 
 		cachedURL, err := rdb.Get(context.Background(), param).Result()
-		if len(cachedURL) >= 3 && cachedURL[:3] == ":e:" {
+		if (len(cachedURL) >= 3 && cachedURL[:3] == ":e:") || cachedURL == ":a:" {
 			MainRedirect(c, true)
 			return
 		} else if err == nil {
