@@ -6,6 +6,7 @@ import (
 	"os"
 	"redir/database"
 	"redir/platform"
+	"time"
 
 	"github.com/go-redis/redis/v8"
 	_ "github.com/go-sql-driver/mysql"
@@ -45,7 +46,11 @@ func main() {
 		DB:       0,
 	})
 
-	rtr := platform.New(db, ipDB, rdb)
+	var httpClient = &http.Client{
+		Timeout: 10 * time.Second,
+	}
+
+	rtr := platform.New(db, ipDB, rdb, httpClient)
 
 	port := os.Getenv("PORT")
 	if port == "" {

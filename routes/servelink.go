@@ -2,6 +2,7 @@ package routes
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"redir/convert"
 	"redir/datatypes"
@@ -12,7 +13,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func Redirect(db *gorm.DB, ipDB *geoip2.Reader, rdb *redis.Client) gin.HandlerFunc {
+func Redirect(db *gorm.DB, ipDB *geoip2.Reader, rdb *redis.Client, httpClient *http.Client) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		param := c.Param("id")
 		var realURL string
@@ -29,20 +30,44 @@ func Redirect(db *gorm.DB, ipDB *geoip2.Reader, rdb *redis.Client) gin.HandlerFu
 			}
 		}
 
-		cachedURL, err := rdb.Get(context.Background(), param).Result()
-		if (len(cachedURL) >= 3 && cachedURL[:3] == ":e:") || cachedURL == ":a:" {
+		var userID string
+
+		retStr, err := rdb.Get(context.Background(), param).Result()
+		if (len(retStr) >= 3 && retStr[:3] == ":e:") || retStr == ":a:" {
 			MainRedirect(c, true)
 			return
 		} else if err == nil {
-			realURL = cachedURL
-		} else {
 			if custom {
-				realURL, err = GetRealURLByCustom(db, param)
+				customStruct, parseErr := ParseCustomStruct(retStr)
+				if parseErr != nil {
+					err = parseErr
+				} else if customStruct == nil || customStruct.URL == "" || customStruct.UserID == "" {
+					err = errors.New("improperly formatted custom struct for custom handle")
+				} else {
+					realURL = customStruct.URL
+					userID = customStruct.UserID
+				}
+			} else {
+				realURL = retStr
+			}
+		}
+
+		if err != nil {
+			if custom {
+				realURL, userID, err = GetRealURLAndUserByCustom(db, param)
 			} else {
 				realURL, err = GetRealURL(db, id)
 			}
 
 			if err != nil {
+				MainRedirect(c, true)
+				return
+			}
+		}
+
+		if custom {
+			check, err := CheckPaymentStatus(userID, httpClient)
+			if !check || err != nil {
 				MainRedirect(c, true)
 				return
 			}

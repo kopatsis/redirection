@@ -1,6 +1,7 @@
 package platform
 
 import (
+	"net/http"
 	"redir/routes"
 
 	"github.com/gin-gonic/gin"
@@ -9,7 +10,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func New(db *gorm.DB, ipDB *geoip2.Reader, rdb *redis.Client) *gin.Engine {
+func New(db *gorm.DB, ipDB *geoip2.Reader, rdb *redis.Client, httpClient *http.Client) *gin.Engine {
 	router := gin.Default()
 
 	router.Use(CORSMiddleware())
@@ -18,7 +19,7 @@ func New(db *gorm.DB, ipDB *geoip2.Reader, rdb *redis.Client) *gin.Engine {
 		routes.MainRedirect(c, false)
 	})
 
-	router.GET("/:id", routes.Redirect(db, ipDB, rdb))
+	router.GET("/:id", routes.Redirect(db, ipDB, rdb, httpClient))
 
 	return router
 
