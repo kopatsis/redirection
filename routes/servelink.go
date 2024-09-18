@@ -79,6 +79,10 @@ func Redirect(db *gorm.DB, ipDB *geoip2.Reader, rdb *redis.Client, httpClient *h
 			db.Model(&datatypes.Entry{}).Where("id = ?", id).UpdateColumn("count", gorm.Expr("count + 1"))
 		}()
 
+		c.Header("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate")
+		c.Header("Pragma", "no-cache")
+		c.Header("Expires", "0")
+
 		c.Redirect(http.StatusSeeOther, realURL)
 
 	}
