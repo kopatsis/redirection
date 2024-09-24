@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"redir/datatypes"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -108,13 +109,23 @@ func RequestClickCreate(c *gin.Context, ipDB *geoip2.Reader, id int, realURL str
 	var country string
 
 	ipStr := c.ClientIP()
-	ip := net.ParseIP(ipStr)
-	if ip != nil {
-		record, err := ipDB.City(ip)
 
-		if err == nil && record != nil {
-			city = record.City.Names["en"]
-			country = record.Country.Names["en"]
+	if ipStr == "" || ipStr == "::1" {
+		ipStr = c.Request.Header.Get("X-Forwarded-For")
+	}
+
+	if ipStr != "" {
+		if commaIndex := strings.Index(ipStr, ","); commaIndex != -1 {
+			ipStr = ipStr[:commaIndex]
+		}
+
+		ip := net.ParseIP(ipStr)
+		if ip != nil {
+			record, err := ipDB.City(ip)
+			if err == nil && record != nil {
+				city = record.City.Names["en"]
+				country = record.Country.Names["en"]
+			}
 		}
 	}
 
