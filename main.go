@@ -6,10 +6,11 @@ import (
 	"os"
 	"redir/database"
 	"redir/platform"
-	"time"
 
 	"github.com/go-redis/redis/v8"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/stripe/stripe-go/v72"
+	"github.com/stripe/stripe-go/v72/account"
 
 	"github.com/joho/godotenv"
 	"github.com/oschwald/geoip2-golang"
@@ -46,11 +47,15 @@ func main() {
 		DB:       0,
 	})
 
-	var httpClient = &http.Client{
-		Timeout: 10 * time.Second,
-	}
+	stripe.Key = os.Getenv("STRIPE_SECRET")
 
-	rtr := platform.New(db, ipDB, rdb, httpClient)
+	acct, err := account.Get()
+	if err != nil {
+		log.Fatalf("Stripe API key test failed: %v", err)
+	}
+	log.Printf("Stripe API key test succeeded: Account ID = %s, Email = %s", acct.ID, acct.Email)
+
+	rtr := platform.New(db, ipDB, rdb)
 
 	port := os.Getenv("PORT")
 	if port == "" {

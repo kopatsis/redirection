@@ -5,7 +5,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net"
 	"net/http"
 	"os"
@@ -60,48 +59,6 @@ func GetRealURLAndUserByCustom(db *gorm.DB, custom string) (realURL, user string
 	realURL = entry.RealURL
 	user = entry.User
 	return
-}
-
-func CheckPaymentStatus(userid string, httpClient *http.Client) (bool, error) {
-	checkURL := os.Getenv("PAY_API_URL")
-	if checkURL == "" {
-		checkURL = "https://pay.shortentrack.com"
-	}
-
-	url := fmt.Sprintf("%s/check/%s", checkURL, userid)
-
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return false, err
-	}
-
-	passcode := os.Getenv("CHECK_PASSCODE")
-	if passcode == "" {
-		return false, errors.New("missing passcode")
-	}
-	req.Header.Set("X-Passcode-ID", passcode)
-
-	resp, err := httpClient.Do(req)
-	if err != nil {
-		return false, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode == 400 || resp.StatusCode == 500 {
-		return false, errors.New("server error")
-	}
-
-	var result struct {
-		ID     string `json:"id"`
-		Paying bool   `json:"paying"`
-	}
-
-	err = json.NewDecoder(resp.Body).Decode(&result)
-	if err != nil {
-		return false, err
-	}
-
-	return result.Paying, nil
 }
 
 func RequestClickCreate(c *gin.Context, ipDB *geoip2.Reader, id int, realURL string) *datatypes.Click {

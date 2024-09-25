@@ -8,6 +8,7 @@ require (
 	github.com/go-sql-driver/mysql v1.8.1
 	github.com/mssola/user_agent v0.6.0
 	github.com/oschwald/geoip2-golang v1.11.0
+	github.com/stripe/stripe-go/v72 v72.122.0
 	github.com/ua-parser/uap-go v0.0.0-20240611065828-3a4781585db6
 	gorm.io/driver/mysql v1.5.7
 	gorm.io/gorm v1.25.11

@@ -13,7 +13,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func Redirect(db *gorm.DB, ipDB *geoip2.Reader, rdb *redis.Client, httpClient *http.Client) gin.HandlerFunc {
+func Redirect(db *gorm.DB, ipDB *geoip2.Reader, rdb *redis.Client) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		param := c.Param("id")
 		var realURL string
@@ -66,7 +66,7 @@ func Redirect(db *gorm.DB, ipDB *geoip2.Reader, rdb *redis.Client, httpClient *h
 		}
 
 		if custom {
-			check, err := CheckPaymentStatus(userID, httpClient)
+			check, err := CheckUserPaying(rdb, userID)
 			if !check || err != nil {
 				MainRedirect(c, true)
 				return
