@@ -74,7 +74,7 @@ func Redirect(db *gorm.DB, ipDB *geoip2.Reader, rdb *redis.Client) gin.HandlerFu
 		}
 
 		go func() {
-			click := RequestClickCreate(c, ipDB, id, realURL)
+			click := RequestClickCreate(c, ipDB, id, realURL, param, custom)
 			db.Create(click)
 			db.Model(&datatypes.Entry{}).Where("id = ?", id).UpdateColumn("count", gorm.Expr("count + 1"))
 		}()

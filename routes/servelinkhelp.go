@@ -61,7 +61,7 @@ func GetRealURLAndUserByCustom(db *gorm.DB, custom string) (realURL, user string
 	return
 }
 
-func RequestClickCreate(c *gin.Context, ipDB *geoip2.Reader, id int, realURL string) *datatypes.Click {
+func RequestClickCreate(c *gin.Context, ipDB *geoip2.Reader, id int, realURL, handle string, custom bool) *datatypes.Click {
 	var city string
 	var country string
 
@@ -101,18 +101,20 @@ func RequestClickCreate(c *gin.Context, ipDB *geoip2.Reader, id int, realURL str
 	isBot := uaM.Bot()
 
 	click := datatypes.Click{
-		ParamKey:  id,
-		Time:      time.Now(),
-		RealURL:   realURL,
-		City:      city,
-		Country:   country,
-		Browser:   browser,
-		OS:        os,
-		Platform:  platform,
-		Mobile:    isMobile,
-		Bot:       isBot,
-		FromQR:    c.Query("q") == "t",
-		IPAddress: hex.EncodeToString(sha256.New().Sum([]byte(ipStr))),
+		ParamKey:   id,
+		Time:       time.Now(),
+		RealURL:    realURL,
+		Handle:     handle,
+		City:       city,
+		Country:    country,
+		Browser:    browser,
+		OS:         os,
+		Platform:   platform,
+		Mobile:     isMobile,
+		Bot:        isBot,
+		FromQR:     c.Query("q") == "t",
+		FromCustom: custom,
+		IPAddress:  hex.EncodeToString(sha256.New().Sum([]byte(ipStr))),
 	}
 
 	return &click
