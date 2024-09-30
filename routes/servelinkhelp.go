@@ -40,7 +40,7 @@ func ParseCustomStruct(jsonStr string) (*datatypes.Custom, error) {
 	return &custom, nil
 }
 
-func GetRealURL(db *gorm.DB, id int) (string, error) {
+func GetRealURL(db *gorm.DB, id int64) (string, error) {
 	var realURL string
 	result := db.Table("entries").Select("real_url").Where("id = ? AND archived = ?", id, false).Scan(&realURL)
 	if result.Error != nil {
@@ -61,7 +61,7 @@ func GetRealURLAndUserByCustom(db *gorm.DB, custom string) (realURL, user string
 	return
 }
 
-func RequestClickCreate(c *gin.Context, ipDB *geoip2.Reader, id int, realURL, handle string, custom bool) *datatypes.Click {
+func RequestClickCreate(c *gin.Context, ipDB *geoip2.Reader, id int64, realURL, handle string, custom bool) *datatypes.Click {
 	var city string
 	var country string
 

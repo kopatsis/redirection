@@ -18,7 +18,7 @@ func Redirect(db *gorm.DB, ipDB *geoip2.Reader, rdb *redis.Client) gin.HandlerFu
 		param := c.Param("id")
 		var realURL string
 
-		var id int
+		var id int64
 		custom := len(param) > 6
 
 		if !custom {
@@ -41,11 +41,12 @@ func Redirect(db *gorm.DB, ipDB *geoip2.Reader, rdb *redis.Client) gin.HandlerFu
 				customStruct, parseErr := ParseCustomStruct(retStr)
 				if parseErr != nil {
 					err = parseErr
-				} else if customStruct == nil || customStruct.URL == "" || customStruct.UserID == "" {
+				} else if customStruct == nil || customStruct.URL == "" || customStruct.UserID == "" || customStruct.Param <= 0 {
 					err = errors.New("improperly formatted custom struct for custom handle")
 				} else {
 					realURL = customStruct.URL
 					userID = customStruct.UserID
+					id = customStruct.Param
 				}
 			} else {
 				realURL = retStr
