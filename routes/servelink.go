@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"net/http"
-	"redir/convert"
 	"redir/datatypes"
 
 	"github.com/gin-gonic/gin"
@@ -18,38 +17,24 @@ func Redirect(db *gorm.DB, ipDB *geoip2.Reader, rdb *redis.Client) gin.HandlerFu
 		param := c.Param("id")
 		var realURL string
 
-		var id int64
-		custom := len(param) > 6
-
-		if !custom {
-			var err error
-			id, err = convert.FromSixFour(param)
-			if err != nil {
-				MainRedirect(c, true)
-				return
-			}
-		}
-
+		custom := len(param) >= 6
 		var userID string
+		var id int
 
 		retStr, err := rdb.Get(context.Background(), param).Result()
 		if (len(retStr) >= 3 && retStr[:3] == ":e:") || retStr == ":a:" {
 			MainRedirect(c, true)
 			return
 		} else if err == nil {
-			if custom {
-				customStruct, parseErr := ParseCustomStruct(retStr)
-				if parseErr != nil {
-					err = parseErr
-				} else if customStruct == nil || customStruct.URL == "" || customStruct.UserID == "" || customStruct.Param <= 0 {
-					err = errors.New("improperly formatted custom struct for custom handle")
-				} else {
-					realURL = customStruct.URL
-					userID = customStruct.UserID
-					id = customStruct.Param
-				}
+			customStruct, parseErr := ParseCustomStruct(retStr)
+			if parseErr != nil {
+				err = parseErr
+			} else if customStruct == nil || customStruct.URL == "" || customStruct.UserID == "" || customStruct.Param <= 0 {
+				err = errors.New("improperly formatted custom struct for custom handle")
 			} else {
-				realURL = retStr
+				realURL = customStruct.URL
+				userID = customStruct.UserID
+				id = customStruct.Param
 			}
 		}
 
@@ -57,7 +42,7 @@ func Redirect(db *gorm.DB, ipDB *geoip2.Reader, rdb *redis.Client) gin.HandlerFu
 			if custom {
 				realURL, userID, err = GetRealURLAndUserByCustom(db, param)
 			} else {
-				realURL, err = GetRealURL(db, id)
+				realURL, err = GetRealURL(db, param)
 			}
 
 			if err != nil {
@@ -76,9 +61,9 @@ func Redirect(db *gorm.DB, ipDB *geoip2.Reader, rdb *redis.Client) gin.HandlerFu
 
 		if c.GetHeader("Already-Redirected") != "true" {
 			go func() {
-				click := RequestClickCreate(c, ipDB, id, realURL, param, custom)
+				click := RequestClickCreate(c, ipDB, realURL, param, userID, id)
 				db.Create(click)
-				db.Model(&datatypes.Entry{}).Where("id = ?", id).UpdateColumn("count", gorm.Expr("count + 1"))
+				db.Model(&datatypes.Entry{}).Where("param = ?", param).UpdateColumn("count", gorm.Expr("count + 1"))
 			}()
 		}
 

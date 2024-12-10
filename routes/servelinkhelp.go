@@ -40,9 +40,9 @@ func ParseCustomStruct(jsonStr string) (*datatypes.Custom, error) {
 	return &custom, nil
 }
 
-func GetRealURL(db *gorm.DB, id int64) (string, error) {
+func GetRealURL(db *gorm.DB, id string) (string, error) {
 	var realURL string
-	result := db.Table("entries").Select("real_url").Where("id = ? AND archived = ?", id, false).Scan(&realURL)
+	result := db.Table("entries").Select("real_url").Where("param = ? AND archived = ?", id, false).Scan(&realURL)
 	if result.Error != nil {
 		return "", result.Error
 	}
@@ -51,7 +51,7 @@ func GetRealURL(db *gorm.DB, id int64) (string, error) {
 
 func GetRealURLAndUserByCustom(db *gorm.DB, custom string) (realURL, user string, err error) {
 	var entry datatypes.Entry
-	result := db.Where("custom_handle = ? AND archived = ?", custom, false).First(&entry)
+	result := db.Where("param = ? AND archived = ?", custom, false).First(&entry)
 	if result.Error != nil {
 		err = result.Error
 		return
@@ -61,7 +61,7 @@ func GetRealURLAndUserByCustom(db *gorm.DB, custom string) (realURL, user string
 	return
 }
 
-func RequestClickCreate(c *gin.Context, ipDB *geoip2.Reader, id int64, realURL, handle string, custom bool) *datatypes.Click {
+func RequestClickCreate(c *gin.Context, ipDB *geoip2.Reader, realURL, handle, userid string, id int) *datatypes.Click {
 	var city string
 	var country string
 
@@ -101,20 +101,20 @@ func RequestClickCreate(c *gin.Context, ipDB *geoip2.Reader, id int64, realURL, 
 	isBot := uaM.Bot()
 
 	click := datatypes.Click{
-		ParamKey:   id,
-		Time:       time.Now(),
-		RealURL:    realURL,
-		Handle:     handle,
-		City:       city,
-		Country:    country,
-		Browser:    browser,
-		OS:         os,
-		Platform:   platform,
-		Mobile:     isMobile,
-		Bot:        isBot,
-		FromQR:     c.Query("q") == "t",
-		FromCustom: custom,
-		IPAddress:  hex.EncodeToString(sha256.New().Sum([]byte(ipStr))),
+		Param:     handle,
+		EntryID:   id,
+		UserID:    userid,
+		Time:      time.Now(),
+		RealURL:   realURL,
+		City:      city,
+		Country:   country,
+		Browser:   browser,
+		OS:        os,
+		Platform:  platform,
+		Mobile:    isMobile,
+		Bot:       isBot,
+		FromQR:    c.Query("q") == "t",
+		IPAddress: hex.EncodeToString(sha256.New().Sum([]byte(ipStr))),
 	}
 
 	return &click
